@@ -10,27 +10,38 @@ use crate::object_definitions::{ObjectDefinition, parse_definitions};
 pub struct Schema {
     pub definitions: HashMap<String, ObjectDefinition>,
     pub all_of: Option<Vec<String>>,
+    filename: Option<String>,
 }
 
 impl Schema {
-    pub fn new(v: &Value) -> Self {
+    pub fn new(v: &Value, filename: Option<String>) -> Self {
         assert!(v.is_object(), format!("schema {} not an object", v));
         let v = v.as_object().unwrap();
 
         if !v.contains_key("definitions") {
-            Self::parse_schema_with_single_definition(v)
+            Self::parse_schema_with_single_definition(v, filename)
         } else {
-            Self::parse_schema_with_embedded_definitions(v)
+            Self::parse_schema_with_embedded_definitions(v, filename)
         }
     }
 
-    fn parse_schema_with_single_definition(v: &Map<String, Value>) -> Self {
-        let temp = json!({"temp": v});
-        let definition = parse_definitions(&temp);
-        Schema { definitions: definition, all_of: None }
+    pub fn export_definitions(self) -> Option<HashMap<String, ObjectDefinition>> {
+        self.filename.clone().map(|filename| {
+            self.definitions.into_iter().map(|(defname, def)| {
+                let tag = format!("{}#/definitions/{}", filename.clone(), defname);
+                (tag, def)
+            })
+                .collect()
+        })
     }
 
-    fn parse_schema_with_embedded_definitions(v: &Map<String, Value>) -> Self {
+    fn parse_schema_with_single_definition(v: &Map<String, Value>, filename: Option<String>) -> Self {
+        let temp = json!({"temp": v});
+        let definition = parse_definitions(&temp);
+        Schema { definitions: definition, all_of: None, filename }
+    }
+
+    fn parse_schema_with_embedded_definitions(v: &Map<String, Value>, filename: Option<String>) -> Self {
         let mut definitions = None;
         let mut all_of = None;
 
@@ -40,14 +51,14 @@ impl Schema {
             }
 
             if k == "allOf" {
-                all_of = Some(Self::parse_references_in_AllOf_field(v));
+                all_of = Some(Self::parse_references_in_allof_field(v));
             }
         }
 
-        Schema { definitions: definitions.unwrap(), all_of }
+        Schema { definitions: definitions.unwrap(), all_of, filename }
     }
 
-    fn parse_references_in_AllOf_field(v: &Value) -> Vec<String> {
+    fn parse_references_in_allof_field(v: &Value) -> Vec<String> {
         assert!(v.is_array());
         let v = v.as_array().unwrap();
         v.iter()
@@ -68,7 +79,11 @@ impl Schema {
             .and_then(|data|
                 serde_json::from_str::<Value>(&data)
                     .ok()
-                    .map(|v| Self::new(&v)))
+                    .map(|v| Self::new(&v, Some(filepath
+                        .file_name()
+                        .unwrap()
+                        .to_string_lossy()
+                        .to_string()))))
     }
 }
 
@@ -92,7 +107,7 @@ mod tests {
           },
           "allOf": [ { "$ref": "#/definitions/basemessage" } ]
           }"###).unwrap();
-        let schema = Schema::new(&v);
+        let schema = Schema::new(&v, None);
         assert_eq!(schema.definitions.len(), 1);
         assert_eq!(schema.all_of.as_ref().unwrap().len(), 1);
         assert_eq!(schema.all_of.as_ref().unwrap()[0], "#/definitions/basemessage");
@@ -117,11 +132,32 @@ mod tests {
               ],
               "required": [ "subtype", "name", "action", "more_data", "o_id", "person_id" ] } "###)
             .unwrap();
-        let schema = Schema::new(&v);
+        let schema = Schema::new(&v, None);
         assert_eq!(schema.definitions.len(), 1);
         let def = &schema.definitions["temp"];
         assert_eq!(def.kind, "object");
         assert_eq!(def.field_definitions.as_ref().unwrap().len(), 7);
+    }
+
+    #[test]
+    fn export_schema_definitions() {
+        let v: Value = serde_json::from_str(r###" { "definitions": {
+            "basemessage": {
+              "type": "object",
+              "properties": {
+                "type": { "type": "string" },
+                "timestamp": { "type": "string", "format": "date-time" },
+                "metadata": { "$ref": "metadata.schema.json#/definitions/metadata" }
+              },
+              "required": [ "type", "timestamp", "metadata" ]
+            }
+          },
+          "allOf": [ { "$ref": "#/definitions/basemessage" } ]
+          }"###).unwrap();
+        let exported = Schema::new(&v, Some("a-file-somwehere".to_owned())).export_definitions().unwrap();
+        assert_eq!(exported.len(), 1);
+        let def = &exported["a-file-somwehere#/definitions/basemessage"];
+        assert_eq!(def.kind, "object");
     }
 }
 

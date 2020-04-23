@@ -3,6 +3,7 @@ use std::env;
 use std::fs;
 use std::process;
 
+use crate::field_kinds::FieldKind;
 use crate::schema_parser::Schema;
 
 mod schema_parser;
@@ -27,10 +28,10 @@ fn main() {
         let entry = entry.unwrap();
         if entry.file_type().unwrap().is_file() && entry.path().extension().unwrap() == "json" {
             let schema = Schema::from_file(&entry.path()).unwrap();
-            let fullpath: String = entry.path().to_string_lossy().to_string();
-            reference_map.insert(fullpath, schema);
+            let fullpath: String = entry.file_name().to_string_lossy().to_string();
+            for (name, def) in schema.definitions {
+                reference_map.insert(format!("{}#/definitions/{}", fullpath, name), def);
+            }
         }
     }
-
-    eprintln!("reference_map = {:?}", reference_map);
 }
