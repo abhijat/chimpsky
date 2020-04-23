@@ -1,12 +1,13 @@
+use std::collections::HashMap;
+
 use chrono::{TimeZone, Utc};
 use rand::{Rng, thread_rng};
 use rand::distributions::Alphanumeric;
 use rand::seq::SliceRandom;
-use serde_json::{json, Value};
+use serde_json::{json, Map, Value};
 use uuid::Uuid;
 
 use crate::field_kinds::FieldKind;
-use std::collections::HashMap;
 use crate::object_definitions::ObjectDefinition;
 
 pub fn string() -> String {
@@ -71,7 +72,7 @@ pub fn value_of_kind(k: &FieldKind, reference_map: Option<&HashMap<String, Objec
         FieldKind::Int => json!(u64()),
         FieldKind::Float => json!(float()),
         FieldKind::Bool => json!(boolean()),
-        FieldKind::Object => json!({}),
+        FieldKind::Object => random_object(),
         FieldKind::Null => json!(()),
         FieldKind::OneOf(kinds) => {
             let kind = element_from_collection(kinds);
@@ -96,6 +97,14 @@ pub fn values_of_kind(k: &FieldKind, count: u64, reference_map: Option<&HashMap<
 
 pub fn uuid4() -> String {
     Uuid::new_v4().to_string()
+}
+
+fn random_object() -> Value {
+    let domain_of_values = FieldKind::OneOf(vec![FieldKind::Int, FieldKind::Str, FieldKind::Bool]);
+    let m = (0..10)
+        .map(|_| (string(), value_of_kind(&domain_of_values, None)))
+        .collect::<Map<String, Value>>();
+    Value::Object(m)
 }
 
 fn has_anchors(pattern: &str) -> bool {

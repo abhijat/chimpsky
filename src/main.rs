@@ -35,8 +35,8 @@ fn main() {
 
     let definition_name = &args[2];
     let definition = &reference_map[definition_name];
-    for _ in 0..50 {
+    for _ in 0..5 {
         let payload = definition.generate_json(Some(&reference_map)).unwrap();
-        println!("{}", serde_json::to_string(&payload).unwrap());
+        println!("{}", serde_json::to_string_pretty(&payload).unwrap());
     }
 }
