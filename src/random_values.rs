@@ -6,6 +6,8 @@ use serde_json::{json, Value};
 use uuid::Uuid;
 
 use crate::field_kinds::FieldKind;
+use std::collections::HashMap;
+use crate::object_definitions::ObjectDefinition;
 
 pub fn string() -> String {
     thread_rng().sample_iter(&Alphanumeric).take(20).collect()
@@ -63,7 +65,7 @@ pub fn element_from_collection<T>(v: &Vec<T>) -> &T {
     v.choose(&mut thread_rng()).unwrap()
 }
 
-pub fn value_of_kind(k: &FieldKind) -> Value {
+pub fn value_of_kind(k: &FieldKind, reference_map: Option<&HashMap<String, ObjectDefinition>>) -> Value {
     match k {
         FieldKind::Str => json!(string()),
         FieldKind::Int => json!(u64()),
@@ -73,20 +75,23 @@ pub fn value_of_kind(k: &FieldKind) -> Value {
         FieldKind::Null => json!(()),
         FieldKind::OneOf(kinds) => {
             let kind = element_from_collection(kinds);
-            value_of_kind(kind)
+            value_of_kind(kind, reference_map)
         }
-        FieldKind::Reference(refpath) => json!({}),
+        FieldKind::Reference(s) => reference_map
+            .unwrap()[s]
+            .generate_json(reference_map)
+            .unwrap(),
         FieldKind::ListOf(field_kinds) => {
             field_kinds
                 .iter()
-                .flat_map(|k| values_of_kind(k, thread_rng().gen_range(0, 10)))
+                .flat_map(|k| values_of_kind(k, thread_rng().gen_range(0, 10), reference_map))
                 .collect()
         }
     }
 }
 
-pub fn values_of_kind(k: &FieldKind, count: u64) -> Vec<Value> {
-    (0..count).map(|_| value_of_kind(k)).collect()
+pub fn values_of_kind(k: &FieldKind, count: u64, reference_map: Option<&HashMap<String, ObjectDefinition>>) -> Vec<Value> {
+    (0..count).map(|_| value_of_kind(k, reference_map)).collect()
 }
 
 pub fn uuid4() -> String {
@@ -157,16 +162,16 @@ mod tests {
     fn values_for_kind() {
         let kind = FieldKind::OneOf(vec![FieldKind::Str, FieldKind::Int, FieldKind::Object]);
         for _ in 0..100 {
-            let v = value_of_kind(&kind);
+            let v = value_of_kind(&kind, None);
             assert!(v.is_string() || v.is_number() || v.is_object());
         }
     }
 
     #[test]
     fn list_generation() {
-        let values = value_of_kind(&FieldKind::ListOf(vec![FieldKind::Str, FieldKind::Int, FieldKind::Reference(String::new())]));
+        let values = value_of_kind(&FieldKind::ListOf(vec![FieldKind::Str, FieldKind::Int]), None);
         values.as_array().unwrap().iter().for_each(|v| {
-            assert!(v.is_string() || v.is_number() || v.is_object())
+            assert!(v.is_string() || v.is_number())
         });
     }
 }

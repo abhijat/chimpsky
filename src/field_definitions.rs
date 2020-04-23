@@ -1,4 +1,3 @@
-use std::collections::hash_map::RandomState;
 use std::collections::HashMap;
 
 use serde_json::{json, Value};
@@ -48,7 +47,7 @@ impl FieldDefinition {
         fd
     }
 
-    pub fn generate_json_elements(&self, reference_map: &Option<HashMap<String, ObjectDefinition>>) -> (String, Value) {
+    pub fn generate_json_elements(&self, reference_map: Option<&HashMap<String, ObjectDefinition>>) -> (String, Value) {
         let name = self.name.to_owned();
 
         if let Some(format) = &self.format {
@@ -60,19 +59,13 @@ impl FieldDefinition {
         }
 
         if let Some(FieldKind::Reference(reference)) = &self.kind {
-            match reference_map {
-                None => panic!(format!("cannot resolve reference {} without a reference map", reference)),
-                Some(refmap) => {
-                    let definition = refmap.get(reference).unwrap();
-                    panic!("not supported obj-ref yet")
-                }
-            }
+            return self.generate_by_reference(reference, reference_map);
         }
 
         let v = match self.kind.as_ref() {
             None => json!(()),
             Some(k) => {
-                random_values::value_of_kind(k)
+                random_values::value_of_kind(k, reference_map)
             }
         };
 
@@ -93,8 +86,14 @@ impl FieldDefinition {
         (self.name.to_owned(), json!(random_values::string_matching_pattern(pattern)))
     }
 
-    fn generate_by_reference(&self) -> (String, Value) {
-        (self.name.to_owned(), json!({}))
+    fn generate_by_reference(&self, reference: &str, reference_map: Option<&HashMap<String, ObjectDefinition>>) -> (String, Value) {
+        match reference_map {
+            None => panic!(format!("cannot resolve reference {} without a reference map", reference)),
+            Some(refmap) => {
+                let definition = refmap.get(reference).unwrap();
+                return (self.name.to_owned(), definition.generate_json(reference_map).unwrap());
+            }
+        }
     }
 }
 

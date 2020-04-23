@@ -55,7 +55,7 @@ impl ObjectDefinition {
         od
     }
 
-    pub fn generate_json(&self, reference_map: &Option<HashMap<String, ObjectDefinition>>) -> Option<Value> {
+    pub fn generate_json(&self, reference_map: Option<&HashMap<String, ObjectDefinition>>) -> Option<Value> {
         self.field_definitions.as_ref().map(|field_definitions| {
             let v = field_definitions.iter()
                 .map(|field| field.generate_json_elements(reference_map))
@@ -210,7 +210,7 @@ mod tests {
           "required": [ "type", "timestamp", "metadata" ]
         } } "#).unwrap();
         let definition = &parse_definitions(&v)["basemessage"];
-        let v = definition.generate_json(&None).unwrap();
+        let v = definition.generate_json(None).unwrap();
         assert!(v.is_object());
         assert!(v["hobbies"].is_array());
         assert!(v["is_working"].is_boolean());

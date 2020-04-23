@@ -32,7 +32,5 @@ fn main() {
         }
     }
 
-    for (k, v) in reference_map.iter() {
-        println!("{} --> {}", k, v.name);
-    }
+    println!("{:?}", reference_map.keys());
 }

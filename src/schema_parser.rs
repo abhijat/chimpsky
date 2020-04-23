@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
+
 
 use serde_json::{json, Map, Value};
 
@@ -36,7 +37,9 @@ impl Schema {
     }
 
     fn parse_schema_with_single_definition(v: &Map<String, Value>, filename: Option<String>) -> Self {
-        let temp = json!({"temp": v});
+        let p = PathBuf::from(filename.clone().unwrap());
+        let name = p.file_stem().unwrap().to_string_lossy();
+        let temp = json!({name: v});
         let definition = parse_definitions(&temp);
         Schema { definitions: definition, all_of: None, filename }
     }
@@ -132,9 +135,9 @@ mod tests {
               ],
               "required": [ "subtype", "name", "action", "more_data", "o_id", "person_id" ] } "###)
             .unwrap();
-        let schema = Schema::new(&v, None);
+        let schema = Schema::new(&v, Some(String::from("foobar.json")));
         assert_eq!(schema.definitions.len(), 1);
-        let def = &schema.definitions["temp"];
+        let def = &schema.definitions["foobar"];
         assert_eq!(def.kind, "object");
         assert_eq!(def.field_definitions.as_ref().unwrap().len(), 7);
     }
