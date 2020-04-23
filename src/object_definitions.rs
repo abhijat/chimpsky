@@ -117,7 +117,7 @@ mod tests {
 
     #[test]
     fn parse_simple_definition() {
-        let v: Value = serde_json::from_str(r#" { "basemessage": {
+        let v: Value = serde_json::from_str(r#" { "basicmessageformat": {
           "type": "object",
           "properties": {
             "type": { "type": "string" },
@@ -128,8 +128,8 @@ mod tests {
         } } "#).unwrap();
         let definitions = parse_definitions(&v);
         assert_eq!(definitions.len(), 1);
-        let d = &definitions["basemessage"];
-        assert_eq!(d.name, "basemessage");
+        let d = &definitions["basicmessageformat"];
+        assert_eq!(d.name, "basicmessageformat");
         assert_eq!(d.kind, "object");
         assert_eq!(d.required.as_ref().unwrap().len(), 3);
         assert_eq!(d.field_definitions.as_ref().unwrap().len(), 3);
@@ -140,12 +140,12 @@ mod tests {
         let v: Value = serde_json::from_str(r#"{ "complex-message": {
       "type": "object",
       "allOf": [
-        { "$ref": "basemessage.schema.json#/definitions/basemessage" },
+        { "$ref": "basicmessageformat.schema.json#/definitions/basicmessageformat" },
         { "properties": {
             "st": { "type": [ "string", "null" ] },
             "code": { "$ref": "code.schema.json#/definitions/code" },
             "level": { "type": "string" },
-            "classification": { "$ref": "classification.schema.json#/definitions/event-classification" },
+            "classification": { "$ref": "classification.schema.json#/definitions/classification" },
             "data": { "type": "object" },
             "person-id": { "type": "string", "pattern": "^[a-zA-Z0-9]+(-*[a-zA-Z0-9]+)*$" }
           }
@@ -198,7 +198,7 @@ mod tests {
 
     #[test]
     fn generate_json() {
-        let v: Value = serde_json::from_str(r#" { "basemessage": {
+        let v: Value = serde_json::from_str(r#" { "basicmessageformat": {
           "type": "object",
           "properties": {
             "timestamp": { "type": "string", "format": "date-time" },
@@ -209,7 +209,7 @@ mod tests {
           },
           "required": [ "type", "timestamp", "metadata" ]
         } } "#).unwrap();
-        let definition = &parse_definitions(&v)["basemessage"];
+        let definition = &parse_definitions(&v)["basicmessageformat"];
         let v = definition.generate_json(None).unwrap();
         assert!(v.is_object());
         assert!(v["hobbies"].is_array());

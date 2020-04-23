@@ -1,7 +1,9 @@
 use std::collections::HashMap;
-use std::env;
 use std::fs;
-use std::process;
+use std::fs::DirEntry;
+use std::io::Result;
+
+use structopt::StructOpt;
 
 use crate::object_definitions::ObjectDefinition;
 use crate::schema_parser::Schema;
@@ -13,30 +15,62 @@ mod field_kinds;
 mod random_values;
 
 
-fn main() {
-    let args = env::args();
-    if args.len() != 3 {
-        process::exit(1);
-    }
+#[derive(Debug, StructOpt)]
+struct Options {
+    /// Root path for json schema files
+    #[structopt(short, long)]
+    schema_dir: String,
 
-    let args: Vec<String> = args.collect();
-    let schema_root = &args[1];
+    /// Object name to emit random JSON payloads for
+    #[structopt(short, long)]
+    object_name: String,
+
+    /// Number of random payloads to emit
+    #[structopt(short, long, default_value = "100")]
+    emit_count: u64,
+
+    /// Prettify emitted JSON
+    #[structopt(short, long)]
+    prettify: bool,
+
+    /// Exit after showing analyzed object definitions
+    #[structopt(short, long)]
+    print_schemas: bool,
+}
+
+
+fn schema_from_entry(entry: Result<DirEntry>) -> Option<Schema> {
+    let entry = entry.ok()?;
+    let path = entry.path();
+    
+    if entry.file_type().ok()?.is_file() && path.extension()? == "json" {
+        Schema::from_file(&path)
+    } else {
+        None
+    }
+}
+
+
+fn main() {
+    let options: Options = Options::from_args();
+
+    let schema_root = &options.schema_dir;
     let dir = fs::read_dir(schema_root).unwrap();
 
     let mut reference_map: HashMap<String, ObjectDefinition> = HashMap::new();
 
     for entry in dir {
-        let entry = entry.unwrap();
-        if entry.file_type().unwrap().is_file() && entry.path().extension().unwrap() == "json" {
-            let schema = Schema::from_file(&entry.path()).unwrap();
-            schema.export_definitions().map(|m| reference_map.extend(m));
-        }
+        schema_from_entry(entry).map(|schema| reference_map.extend(schema.export_definitions().unwrap()));
     }
 
-    let definition_name = &args[2];
-    let definition = &reference_map[definition_name];
-    for _ in 0..5 {
+    let definition = &reference_map[&options.object_name];
+    for _ in 0..options.emit_count {
         let payload = definition.generate_json(Some(&reference_map)).unwrap();
-        println!("{}", serde_json::to_string_pretty(&payload).unwrap());
+        let s = if options.prettify {
+            serde_json::to_string_pretty(&payload).unwrap()
+        } else {
+            serde_json::to_string(&payload).unwrap()
+        };
+        println!("{}", s);
     }
 }
