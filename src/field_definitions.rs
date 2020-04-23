@@ -18,7 +18,7 @@ pub struct FieldDefinition {
 impl FieldDefinition {
     pub fn new(name: &str, v: &Value) -> Self {
         let name = name.to_owned();
-        let v = v.as_object().unwrap();
+        let node = v.as_object().unwrap();
 
         let mut fd = FieldDefinition {
             name,
@@ -27,9 +27,9 @@ impl FieldDefinition {
             kind: None,
         };
 
-        for (k, v) in v {
+        for (k, v) in node {
             if k == "type" {
-                fd.kind = Some(FieldKind::new(v));
+                fd.kind = Some(FieldKind::new(v, node));
             }
 
             if k == "format" {

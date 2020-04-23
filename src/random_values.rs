@@ -76,7 +76,17 @@ pub fn value_of_kind(k: &FieldKind) -> Value {
             value_of_kind(kind)
         }
         FieldKind::Reference(refpath) => json!({}),
+        FieldKind::ListOf(field_kinds) => {
+            field_kinds
+                .iter()
+                .flat_map(|k| values_of_kind(k, thread_rng().gen_range(0, 10)))
+                .collect()
+        }
     }
+}
+
+pub fn values_of_kind(k: &FieldKind, count: u64) -> Vec<Value> {
+    (0..count).map(|_| value_of_kind(k)).collect()
 }
 
 pub fn uuid4() -> String {
@@ -153,7 +163,10 @@ mod tests {
     }
 
     #[test]
-    fn uuids() {
-        println!("{}", uuid4());
+    fn list_generation() {
+        let values = value_of_kind(&FieldKind::ListOf(vec![FieldKind::Str, FieldKind::Int, FieldKind::Reference(String::new())]));
+        values.as_array().unwrap().iter().for_each(|v| {
+            assert!(v.is_string() || v.is_number() || v.is_object())
+        });
     }
 }
