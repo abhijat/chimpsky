@@ -3,7 +3,6 @@ use std::env;
 use std::fs;
 use std::process;
 
-use crate::field_kinds::FieldKind;
 use crate::object_definitions::ObjectDefinition;
 use crate::schema_parser::Schema;
 

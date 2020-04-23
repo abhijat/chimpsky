@@ -48,7 +48,7 @@ impl FieldDefinition {
         fd
     }
 
-    pub fn generate_json_elements(&self, reference_map: Option<HashMap<String, ObjectDefinition>>) -> (String, Value) {
+    pub fn generate_json_elements(&self, reference_map: &Option<HashMap<String, ObjectDefinition>>) -> (String, Value) {
         let name = self.name.to_owned();
 
         if let Some(format) = &self.format {
@@ -63,7 +63,8 @@ impl FieldDefinition {
             match reference_map {
                 None => panic!(format!("cannot resolve reference {} without a reference map", reference)),
                 Some(refmap) => {
-                    panic!("still working on supporting references")
+                    let definition = refmap.get(reference).unwrap();
+                    panic!("not supported obj-ref yet")
                 }
             }
         }

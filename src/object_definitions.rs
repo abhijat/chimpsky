@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-use serde_json::Value;
+use serde_json::{Map, Value};
 
 use crate::field_definitions::{FieldDefinition, parse_field_definitions};
 
@@ -53,6 +53,15 @@ impl ObjectDefinition {
             }
         }
         od
+    }
+
+    pub fn generate_json(&self, reference_map: &Option<HashMap<String, ObjectDefinition>>) -> Option<Value> {
+        self.field_definitions.as_ref().map(|field_definitions| {
+            let v = field_definitions.iter()
+                .map(|field| field.generate_json_elements(reference_map))
+                .collect::<Map<String, Value>>();
+            Value::Object(v)
+        })
     }
 
     fn parse_all_of(v: &Value) -> (Vec<String>, Vec<FieldDefinition>) {
@@ -185,5 +194,26 @@ mod tests {
         let desktop = &definitions["desktop"];
         assert_eq!(mobile.field_definitions.as_ref().unwrap().len(), 3);
         assert_eq!(desktop.field_definitions.as_ref().unwrap().len(), 5);
+    }
+
+    #[test]
+    fn generate_json() {
+        let v: Value = serde_json::from_str(r#" { "basemessage": {
+          "type": "object",
+          "properties": {
+            "timestamp": { "type": "string", "format": "date-time" },
+            "userid": { "type": "string", "format": "uuid" },
+            "weight": { "type": "integer" },
+            "is_working": { "type": "boolean" },
+            "hobbies": {"type": "array", "items": {"type": "string"}}
+          },
+          "required": [ "type", "timestamp", "metadata" ]
+        } } "#).unwrap();
+        let definition = &parse_definitions(&v)["basemessage"];
+        let v = definition.generate_json(&None).unwrap();
+        assert!(v.is_object());
+        assert!(v["hobbies"].is_array());
+        assert!(v["is_working"].is_boolean());
+        assert!(v["weight"].is_number());
     }
 }
