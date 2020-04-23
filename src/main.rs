@@ -14,12 +14,13 @@ mod random_values;
 
 
 fn main() {
-    let mut args = env::args();
-    if args.len() != 2 {
+    let args = env::args();
+    if args.len() != 3 {
         process::exit(1);
     }
 
-    let schema_root = args.nth(1).unwrap();
+    let args: Vec<String> = args.collect();
+    let schema_root = &args[1];
     let dir = fs::read_dir(schema_root).unwrap();
 
     let mut reference_map: HashMap<String, ObjectDefinition> = HashMap::new();
@@ -32,5 +33,10 @@ fn main() {
         }
     }
 
-    println!("{:?}", reference_map.keys());
+    let definition_name = &args[2];
+    let definition = &reference_map[definition_name];
+    for _ in 0..50 {
+        let payload = definition.generate_json(Some(&reference_map)).unwrap();
+        println!("{}", serde_json::to_string(&payload).unwrap());
+    }
 }
