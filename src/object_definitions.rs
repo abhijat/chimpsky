@@ -122,9 +122,9 @@ mod tests {
           "properties": {
             "type": { "type": "string" },
             "timestamp": { "type": "string", "format": "date-time" },
-            "metadata": { "$ref": "metadata.schema.json#/definitions/metadata" }
+            "a_carried_object": { "$ref": "a_carried_object.schema.json#/definitions/a_carried_object" }
           },
-          "required": [ "type", "timestamp", "metadata" ]
+          "required": [ "type", "timestamp", "a_carried_object" ]
         } } "#).unwrap();
         let definitions = parse_definitions(&v);
         assert_eq!(definitions.len(), 1);
@@ -147,7 +147,7 @@ mod tests {
             "level": { "type": "string" },
             "classification": { "$ref": "classification.schema.json#/definitions/classification" },
             "data": { "type": "object" },
-            "person-id": { "type": "string", "pattern": "^[a-zA-Z0-9]+(-*[a-zA-Z0-9]+)*$" }
+            "person-id": { "type": "string", "pattern": "^[a-z]+(-[a-z0-9]+)*$" }
           }
         }
       ],
@@ -207,7 +207,7 @@ mod tests {
             "is_working": { "type": "boolean" },
             "hobbies": {"type": "array", "items": {"type": "string"}}
           },
-          "required": [ "type", "timestamp", "metadata" ]
+          "required": [ "type", "timestamp", "a_carried_object" ]
         } } "#).unwrap();
         let definition = &parse_definitions(&v)["basicmessageformat"];
         let v = definition.generate_json(None).unwrap();

@@ -132,7 +132,7 @@ mod tests {
 
     #[test]
     fn regex_with_anchors() {
-        let s = r"^[a-zA-Z0-9]+(-*[a-zA-Z0-9]+)*$";
+        let s = r"^[a-z]+(-[a-z0-9]+)*$";
         let expr = regex::Regex::new(s).unwrap();
 
         for _ in 0..100 {
@@ -143,7 +143,7 @@ mod tests {
 
     #[test]
     fn regex_without_anchors() {
-        let s = r"[a-zA-Z0-9]+(-*[a-zA-Z0-9]+)*";
+        let s = r"[a-z]+(-[a-z0-9]+)*";
         let expr = regex::Regex::new(s).unwrap();
 
         for _ in 0..100 {

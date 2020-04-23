@@ -1,0 +1,45 @@
+{
+  "type": "object",
+  "allOf": [
+    {
+      "$ref": "root_message_format.schema.json#/definitions/root_message_format"
+    },
+    {
+      "properties": {
+        "category_of": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "the_name": {
+          "type": "string"
+        },
+        "action": {
+          "type": "string"
+        },
+        "data": {
+          "type": "object"
+        },
+        "the_payload": {
+          "type": "object"
+        },
+        "unique_number": {
+          "type": "integer"
+        },
+        "room_number": {
+          "type": "string",
+          "pattern": "^[a-z]+(-[a-z0-9]+)*$"
+        }
+      }
+    }
+  ],
+  "required": [
+    "category_of",
+    "the_name",
+    "action",
+    "the_payload",
+    "unique_number",
+    "room_number"
+  ]
+}

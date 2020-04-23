@@ -115,7 +115,7 @@ mod tests {
             "data": { "type": "object" },
             "some-id": { "type": "integer" },
             "some-ref": { "$ref": "another.schema.json#/definitions/something" },
-            "pattern-id": { "type": "string", "pattern": "^[a-zA-Z0-9]+(-*[a-zA-Z0-9]+)*$" }
+            "pattern-id": { "type": "string", "pattern": "^[a-z]+(-[a-z0-9]+)*$" }
          }
         "#).unwrap();
         let fds = parse_field_definitions(&v);
@@ -126,12 +126,12 @@ mod tests {
     fn pattern_is_parsed() {
         let v: Value = serde_json::from_str(r#"
         {
-            "pattern-id": { "type": "string", "pattern": "^[a-zA-Z0-9]+(-*[a-zA-Z0-9]+)*$" }
+            "pattern-id": { "type": "string", "pattern": "^[a-z]+(-[a-z0-9]+)*$" }
          }
         "#).unwrap();
         let fds = parse_field_definitions(&v);
         assert_eq!(fds.len(), 1);
-        assert_eq!(fds[0].pattern.as_ref().unwrap(), "^[a-zA-Z0-9]+(-*[a-zA-Z0-9]+)*$");
+        assert_eq!(fds[0].pattern.as_ref().unwrap(), "^[a-z]+(-[a-z0-9]+)*$");
     }
 
     #[test]

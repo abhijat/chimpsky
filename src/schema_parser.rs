@@ -98,23 +98,23 @@ mod tests {
     #[test]
     fn parse_full_schema() {
         let v: Value = serde_json::from_str(r###" { "definitions": {
-            "basemessage": {
+            "root_message_format": {
               "type": "object",
               "properties": {
                 "type": { "type": "string" },
                 "timestamp": { "type": "string", "format": "date-time" },
-                "metadata": { "$ref": "metadata.schema.json#/definitions/metadata" }
+                "a_carried_object": { "$ref": "a_carried_object.schema.json#/definitions/a_carried_object" }
               },
-              "required": [ "type", "timestamp", "metadata" ]
+              "required": [ "type", "timestamp", "a_carried_object" ]
             }
           },
-          "allOf": [ { "$ref": "#/definitions/basemessage" } ]
+          "allOf": [ { "$ref": "#/definitions/root_message_format" } ]
           }"###).unwrap();
         let schema = Schema::new(&v, None);
         assert_eq!(schema.definitions.len(), 1);
         assert_eq!(schema.all_of.as_ref().unwrap().len(), 1);
-        assert_eq!(schema.all_of.as_ref().unwrap()[0], "#/definitions/basemessage");
-        let def = &schema.definitions["basemessage"];
+        assert_eq!(schema.all_of.as_ref().unwrap()[0], "#/definitions/root_message_format");
+        let def = &schema.definitions["root_message_format"];
         assert_eq!(def.field_definitions.as_ref().unwrap().len(), 3);
         assert_eq!(def.kind, "object");
     }
@@ -123,17 +123,17 @@ mod tests {
     fn parse_single_schema() {
         let v: Value = serde_json::from_str(r###" { "type": "object",
               "allOf": [
-                { "$ref": "basemessage.schema.json#/definitions/basemessage" },
+                { "$ref": "root_message_format.schema.json#/definitions/root_message_format" },
                 { "properties": {
-                    "subtype": { "type": [ "string", "null" ] },
+                    "category_of": { "type": [ "string", "null" ] },
                     "name": { "type": "string" },
                     "action": { "type": "string" },
                     "data": { "type": "object" },
                     "more_data": { "type": "object" },
                     "o_id": { "type": "integer" },
-                    "person_id": { "type": "string", "pattern": "^[a-zA-Z0-9]+(-*[a-zA-Z0-9]+)*$" } } }
+                    "person_id": { "type": "string", "pattern": "^[a-z]+(-[a-z0-9]+)*$" } } }
               ],
-              "required": [ "subtype", "name", "action", "more_data", "o_id", "person_id" ] } "###)
+              "required": [ "category_of", "name", "action", "more_data", "o_id", "person_id" ] } "###)
             .unwrap();
         let schema = Schema::new(&v, Some(String::from("foobar.json")));
         assert_eq!(schema.definitions.len(), 1);
@@ -145,21 +145,21 @@ mod tests {
     #[test]
     fn export_schema_definitions() {
         let v: Value = serde_json::from_str(r###" { "definitions": {
-            "basemessage": {
+            "root_message_format": {
               "type": "object",
               "properties": {
                 "type": { "type": "string" },
                 "timestamp": { "type": "string", "format": "date-time" },
-                "metadata": { "$ref": "metadata.schema.json#/definitions/metadata" }
+                "a_carried_object": { "$ref": "a_carried_object.schema.json#/definitions/a_carried_object" }
               },
-              "required": [ "type", "timestamp", "metadata" ]
+              "required": [ "type", "timestamp", "a_carried_object" ]
             }
           },
-          "allOf": [ { "$ref": "#/definitions/basemessage" } ]
+          "allOf": [ { "$ref": "#/definitions/root_message_format" } ]
           }"###).unwrap();
         let exported = Schema::new(&v, Some("a-file-somwehere".to_owned())).export_definitions().unwrap();
         assert_eq!(exported.len(), 1);
-        let def = &exported["a-file-somwehere#/definitions/basemessage"];
+        let def = &exported["a-file-somwehere#/definitions/root_message_format"];
         assert_eq!(def.kind, "object");
     }
 }

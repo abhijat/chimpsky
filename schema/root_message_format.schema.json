@@ -1,0 +1,29 @@
+{
+  "definitions": {
+    "root_message_format": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "a_carried_object": {
+          "$ref": "a_carried_object.schema.json#/definitions/a_carried_object"
+        }
+      },
+      "required": [
+        "type",
+        "timestamp",
+        "a_carried_object"
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "$ref": "#/definitions/root_message_format"
+    }
+  ]
+}
