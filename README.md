@@ -5,9 +5,38 @@ chimpsky is a program to parse a set of files conforming to [JSON-SCHEMA](https:
 Point it to the root of your directory containing schema files, which may or may not refer to each other.
 
 
+##### Help
+
+chimpsky can either report the objects found in the schema path, or pick one and produce random payloads for it.
+
+```
+~/dev/rust/chimpsky  (master) 
+ abhijat $ cargo run -- --help
+    Finished dev [unoptimized + debuginfo] target(s) in 0.04s
+     Running `target/debug/chimpsky --help`
+chimpsky 0.1.0
+
+USAGE:
+    chimpsky [FLAGS] --schema-dir <schema-dir> <SUBCOMMAND>
+
+FLAGS:
+    -h, --help               Prints help information
+    -r, --report-and-exit    Exit after showing analyzed object definitions
+    -V, --version            Prints version information
+
+OPTIONS:
+    -s, --schema-dir <schema-dir>    Root path for json schema files
+
+SUBCOMMANDS:
+    help         Prints this message or the help of the given subcommand(s)
+    randomize    Generate random JSON payloads based on supplied object name
+    report       Print object definitions found and exit
+```
+
+
 Example runs:
 
-##### Reporting
+##### Reporting the examined objects in schema path
 
 ```
 ~/dev/rust/chimpsky  (master) 
@@ -20,7 +49,7 @@ root_message_format in file root_message_format.schema.json#/definitions/root_me
 
 ```
 
-##### Generating random payload
+##### Generating a random payload for one object
 ```
 ~/dev/rust/chimpsky  (master) 
  abhijat $ cargo run -- -s schema randomize -o bigmessage.schema.json#/definitions/bigmessage.schema -p -e1 
