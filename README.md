@@ -44,7 +44,6 @@ SUBCOMMANDS:
 a_carried_object in file a_carried_object.schema.json#/definitions/a_carried_object
 bigmessage.schema in file bigmessage.schema.json#/definitions/bigmessage.schema
 root_message_format in file root_message_format.schema.json#/definitions/root_message_format
-
 ```
 
 ##### Generating a random payload for one object
