@@ -57,10 +57,30 @@ impl ObjectDefinition {
 
     pub fn generate_json(&self, reference_map: Option<&HashMap<String, ObjectDefinition>>) -> Option<Value> {
         self.field_definitions.as_ref().map(|field_definitions| {
-            let v = field_definitions.iter()
+            let mut v = field_definitions.iter()
                 .map(|field| field.generate_json_elements(reference_map))
                 .collect::<Map<String, Value>>();
-            Value::Object(v)
+
+            if let Some(Value::Object(m)) = self.populate_references(reference_map) {
+                v.extend(m);
+            }
+
+            v.into()
+        })
+    }
+
+    pub fn populate_references(&self, reference_map: Option<&HashMap<String, ObjectDefinition>>) -> Option<Value> {
+        reference_map.map(|reference_map| {
+            let mut m = Map::new();
+            self.references.as_ref().map(|references| {
+                for r in references {
+                    let definition = &reference_map[r];
+                    if let Some(Value::Object(o)) = definition.generate_json(Some(reference_map)) {
+                        m.extend(o);
+                    }
+                }
+            });
+            m.into()
         })
     }
 

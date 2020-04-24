@@ -90,7 +90,7 @@ impl FieldDefinition {
         match reference_map {
             None => panic!(format!("cannot resolve reference {} without a reference map", reference)),
             Some(refmap) => {
-                let definition = refmap.get(reference).unwrap();
+                let definition = refmap.get(reference).expect(format!("cannot resolve {}", reference).as_str());
                 return (self.name.to_owned(), definition.generate_json(reference_map).unwrap());
             }
         }

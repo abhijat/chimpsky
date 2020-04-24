@@ -11,46 +11,57 @@ Example runs:
 
 ```
 ~/dev/rust/chimpsky  (master) 
- abhijat $ ./target/release/chimpsky -s schema report
-a_carried_object in file metadata.schema.json#/definitions/a_carried_object
-root_message_format in file root_message_format.schema.json#/definitions/root_message_format
+ abhijat $ cargo run -- -s schema report
+    Finished dev [unoptimized + debuginfo] target(s) in 0.04s
+     Running `target/debug/chimpsky -s schema report`
+a_carried_object in file a_carried_object.schema.json#/definitions/a_carried_object
 bigmessage.schema in file bigmessage.schema.json#/definitions/bigmessage.schema
+root_message_format in file root_message_format.schema.json#/definitions/root_message_format
+
 ```
 
 ##### Generating random payload
 ```
 ~/dev/rust/chimpsky  (master) 
- abhijat $ ./target/release/chimpsky -s schema randomize -e 1 -o bigmessage.schema.json#/definitions/bigmessage.schema -p
+ abhijat $ cargo run -- -s schema randomize -o bigmessage.schema.json#/definitions/bigmessage.schema -p -e1 
+    Finished dev [unoptimized + debuginfo] target(s) in 0.02s
+     Running `target/debug/chimpsky -s schema randomize -o 'bigmessage.schema.json#/definitions/bigmessage.schema' -p -e1`
 {
-  "action": "nDra2PUoATEZbV4G431T",
-  "category_of": "GEvH9uPZAfHiCNLucVtB",
+  "a_carried_object": {
+    "some_date_of": "2254-04-06T00:48:00+00:00",
+    "version": 914.8072311384599
+  },
+  "action": "puZubrkxFlFnIhDNuY7p",
+  "category_of": "yjZAxsCJvCznbgkUNHe8",
   "data": {
-    "5pQXetwvMPIMTeNhC7ya": "f3L5H76E8L0sEe9BwDwE",
-    "9sz7sGlUJZBp6NUndrTk": 3024,
-    "KyLYLERdIpUuy57mFMqg": 5994,
-    "VEEnu7mz2mD12Fw0Ibds": "20rO1FDwyr1GlAOiLRgQ",
-    "ZQ6Wd1Ylb0IXeinWYuCU": false,
-    "Zn802O021VqhjLXFYLGw": false,
-    "gfelhDIGs4wcevaMxcnH": 1422,
-    "h9KVHbt8GfTKLl6jGBuD": true,
-    "mTZJZKwKf3cwD6dYS90R": true,
-    "v0ONHg822L6AU0Zqcv1h": true
+    "0xvhRPxzpazoa7Gj1a3C": "hwcsP3BBQPtR2iEcpa9n",
+    "4Zg0wBloPnq4V6GyKaqe": true,
+    "5w61a1oZttqAZDrFY2NC": "vGDm7mvyLhwcMDUiCNsP",
+    "IMfQDkOXq5zYWK0Mh9Yz": false,
+    "cBLcVoENuYKdDDqwDKFo": "HVN8l72qWUijzu3SsltH",
+    "djxXvvarNHnGxfOrylMx": "ZGYFryuJc5zziFuQEMFJ",
+    "fUQax6ZIMj26p4yN3Sal": "97aK6fsIKXVG64Y4d7Q4",
+    "lzjM2UhsKmbn85qMc2LC": 8759,
+    "n9LPgHShClZDBcK4e1TB": true,
+    "zRIGKXe0MYXeHeNnjL6S": 5066
   },
-  "room_number": "rhzibv-6praqk-8lxfg-t",
-  "the_name": "O3bksbZ8oNiHD0YJn2Xg",
+  "room_number": "w-9z5ibp-8zls3",
+  "the_name": "nYmntc8ZEPa4sGGH5uO6",
   "the_payload": {
-    "9ECYBjkAFUxHr72c3lTY": 468,
-    "Mjr3XXTeG68EE9bjgtqX": false,
-    "MxF6BfKZMJ81GHGu6ooX": true,
-    "Zt6m6ZV4PQkANXVKPi13": false,
-    "a8TdpGDSkeYoRvGElPCp": false,
-    "f8N7ZxKrOQDlTdBmA7Ah": "9nz0eVM01aMJi1pDAO4z",
-    "r7MoQVRY5TCVon3uatBr": 9151,
-    "suUfoEzhI08uEzK1vvEC": true,
-    "tVm70aDExkcXXIyUojYY": true,
-    "wZlmjCOsoy9cVhuTwAT3": false
+    "1UjT3Y70Lf0VcdgHpnfe": false,
+    "DFH2njvfrDkVxQBizpBF": false,
+    "EEU7ynyzhs2batYq52II": "s1oXNyD83RFxS7QxNrD9",
+    "NkxLCE1AxMGWV2rGBbd3": 1841,
+    "NnaroRsCXXmEq01cotIl": "wWMKTJ35Kg7AVlvlhlVK",
+    "ZW2NNE0ayc9vdLQhp882": true,
+    "gfJQ0v6DDpruU9PvIl6G": "SUfprYx08hw2KVN7ossO",
+    "mosfM4aZQglT5vcCTzLg": "uovThPaTIC1yPprKFI73",
+    "wIyMrI7AY8jPglUfuN2e": 4019,
+    "x9uZhzxmWG9tzd93YjAq": "BU0FPEmTt0DGpIpNbYUG"
   },
-  "unique_number": 7375
+  "timestamp": "2254-05-20T07:12:00+00:00",
+  "type": "wlSLGf4opUMZO8goCUqt",
+  "unique_number": 2362
 }
 ```
 
