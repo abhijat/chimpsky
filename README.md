@@ -5,8 +5,6 @@ chimpsky is a program to parse a set of files conforming to [JSON-SCHEMA](https:
 Point it to the root of your directory containing schema files, which may or may not refer to each other.
 
 
-##### Help
-
 chimpsky can either report the objects found in the schema path, or pick one and produce random payloads for it.
 
 ```
@@ -34,7 +32,7 @@ SUBCOMMANDS:
 ```
 
 
-Example runs:
+#### Example runs:
 
 ##### Reporting the examined objects in schema path
 
