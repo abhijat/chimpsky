@@ -7,6 +7,14 @@ Point it to the root of your directory containing schema files, which may or may
 
 chimpsky can either report the objects found in the schema path, or pick one and produce random payloads for it.
 
+
+##### Installation
+
+Get the binary from the release page. Binaries are built using [trust](https://github.com/japaric/trust) for Linux, MacOSX and Windows
+
+
+##### Help 
+
 ```
 ~/dev/rust/chimpsky  (master) 
  abhijat $ cargo run -- --help
